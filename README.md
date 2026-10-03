@@ -138,4 +138,3 @@ The application will start on:
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
-# smart-lost-and-found
