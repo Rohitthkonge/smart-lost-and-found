@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AegisRecover | Smart Lost & Found Platform</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand" onclick="app.showSection('home')">
+        <span class="brand-badge">AegisRecover</span>
+        <span class="brand-title">Smart Lost & Found</span>
+      </div>
+      <nav class="main-nav">
+        <button class="nav-btn active" id="nav-home" onclick="app.showSection('home')">Home</button>
+        <button class="nav-btn" id="nav-status" onclick="app.showSection('status')">User Dashboard</button>
+        <button class="nav-btn admin-btn" id="nav-admin" onclick="app.showSection('admin')">Admin Portal</button>
+      </nav>
+      <div class="user-auth-nav" id="header-auth-container">
+        <!-- Rendered by JS: either 'Sign In / Register' or user badge with logout -->
+        <button class="btn btn-outline btn-auth" onclick="app.openAuthModal()">Sign In / Register</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Main Container -->
+  <main class="main-content">
+
+    <!-- ====================================================================
+         1. HOME VIEW
+         ==================================================================== -->
+    <!-- ====================================================================
+         1. HOME VIEW
+         ==================================================================== -->
+    <section id="view-home" class="view-section">
+      <div class="home-simple-container">
+        <!-- Hero Header -->
+        <div class="home-hero">
+          <div class="hero-badge">Double-Blind Privacy • Secure Recovery</div>
+          <h1 class="hero-title">Smart Lost & Found</h1>
+          <p class="hero-subtitle">
+            A private and automated platform to recover lost belongings and safely return found property without exposing confidential details.
+          </p>
+        </div>
+
+        <!-- Two Clear Primary Action Cards -->
+        <div class="home-action-cards">
+          <div class="action-card action-card-lost" onclick="app.showSection('lost')">
+            <div class="action-icon">🔍</div>
+            <h3>I Lost Something</h3>
+            <p>Report missing belongings with confidential details. Our engine automatically matches found items without revealing your private data.</p>
+            <button class="btn btn-primary" type="button" onclick="event.stopPropagation(); app.showSection('lost')">
+              Report Lost Item &rarr;
+            </button>
+          </div>
+
+          <div class="action-card action-card-found" onclick="app.showSection('found')">
+            <div class="action-icon">📦</div>
+            <h3>I Found Something</h3>
+            <p>Register discovered property or drop it at a verified partner desk to help securely reunite it with its rightful owner.</p>
+            <button class="btn btn-secondary" type="button" onclick="event.stopPropagation(); app.showSection('found')">
+              Report Found Item &rarr;
+            </button>
+          </div>
+        </div>
+
+        <!-- Simple Search / Track Bar -->
+        <div class="home-track-wrapper">
+          <div class="track-label">
+            <span>🔍</span> Already reported an item? Check recovery status:
+          </div>
+          <form id="quick-track-form" onsubmit="app.handleQuickTrack(event)" class="home-track-form">
+            <input 
+              type="text" 
+              id="quick-track-input" 
+              class="form-control" 
+              placeholder="Enter phone number or tracking ID (e.g. +91 98765 43210 or LOST-...)" 
+              required 
+            />
+            <button type="submit" class="btn btn-primary">Track Status</button>
+          </form>
+        </div>
+
+        <!-- Minimal Trust Features -->
+        <div class="home-features">
+          <div class="home-feature-item">
+            <span class="feature-icon">🔒</span>
+            <span><strong>100% Private:</strong> Identifiers never shared publicly</span>
+          </div>
+          <div class="home-feature-item">
+            <span class="feature-icon">⚡</span>
+            <span><strong>Automated:</strong> Multi-factor cross-referencing</span>
+          </div>
+          <div class="home-feature-item">
+            <span class="feature-icon">🛡️</span>
+            <span><strong>Secure:</strong> Dynamic passcode handover</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         2. LOST ITEM SUBMISSION VIEW
+         ==================================================================== -->
+    <section id="view-lost" class="view-section hidden">
+      <div class="form-container">
+        <div class="form-header">
+          <span class="badge badge-lost">Lost Item Registration</span>
+          <h1>Report a Lost Item</h1>
+          <p>Provide details to initiate automated matching. Secret identification details remain private and are never leaked to finders or the public.</p>
+        </div>
+
+        <form id="lost-item-form" onsubmit="app.handleLostSubmit(event)">
+          <!-- Section 1: Item Details -->
+          <div class="form-card">
+            <h2 class="form-card-title">1. Item Information</h2>
+            
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="lost-product-name">Product Name & Model *</label>
+                <input type="text" id="lost-product-name" class="form-control" placeholder="e.g., Apple MacBook Pro 14 M2 Space Gray" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="lost-category">Category *</label>
+                <select id="lost-category" class="form-control" required>
+                  <option value="">Select Category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Smartphones & Tablets">Smartphones & Tablets</option>
+                  <option value="Wallets & Cards">Wallets & Cards</option>
+                  <option value="Keys & Accessories">Keys & Accessories</option>
+                  <option value="IDs & Documents">IDs & Documents</option>
+                  <option value="Bags & Backpacks">Bags & Backpacks</option>
+                  <option value="Watches & Jewelry">Watches & Jewelry</option>
+                  <option value="Clothing & Eyewear">Clothing & Eyewear</option>
+                  <option value="Personal Accessories">Personal Accessories</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="lost-description">Public Visible Description *</label>
+              <textarea id="lost-description" class="form-control" rows="3" placeholder="Provide general observable traits: color, casing, brand, visible stickers or skins..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Reference Photos (Optional, up to 3)</label>
+              <div class="file-uploader">
+                <input type="file" id="lost-photos-input" multiple accept="image/*" style="display:none" onchange="app.handleLostPhotos(event)" />
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('lost-photos-input').click()">Upload Photos</button>
+                <span class="file-text" id="lost-photos-count">0 files selected</span>
+              </div>
+              <div id="lost-photos-preview" class="image-preview-grid"></div>
+            </div>
+          </div>
+
+          <!-- Section 2: Secret Identification Points Vault -->
+          <div class="form-card">
+            <div class="secret-header">
+              <span class="badge badge-secret">Confidential Identification Vault</span>
+              <h2 class="form-card-title">2. Secret Verification Flaws (Up to 3)</h2>
+              <p class="card-desc">
+                Record unique, hidden flaws that only the true owner would know (e.g. hairline crack at right hinge, scratch under serial sticker). 
+                The AI Verification Agent uses these to generate <strong>NEUTRAL photographic challenges</strong> for finders. The flaw is NEVER leaked.
+              </p>
+            </div>
+
+            <div id="secret-points-container" class="secret-points-list">
+              <!-- Dynamically populated up to 3 points -->
+            </div>
+
+            <button type="button" id="btn-add-secret" class="btn btn-outline btn-sm" onclick="app.addSecretPoint()">
+              ＋ Add Secret Point
+            </button>
+          </div>
+
+          <!-- Section 3: Reward Escrow Vault -->
+          <div class="form-card">
+            <div class="escrow-header">
+              <span class="badge badge-escrow">Pledge Escrow Vault</span>
+              <h2 class="form-card-title">3. Cash Reward Escrow (Optional)</h2>
+              <p class="card-desc">
+                Pledged reward funds are locked in escrow upon registration and are automatically disbursed via UPI to the finder only upon verified physical handover.
+              </p>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="lost-reward-amount">Reward Amount</label>
+                <div class="input-with-currency">
+                  <span class="currency-prefix">₹</span>
+                  <input type="number" id="lost-reward-amount" class="form-control" placeholder="0" min="0" step="50" value="0" />
+                </div>
+              </div>
+              <div class="form-group flex-1">
+                <label for="lost-reward-currency">Currency</label>
+                <select id="lost-reward-currency" class="form-control">
+                  <option value="INR" selected>INR (₹)</option>
+                  <option value="USD">USD ($)</option>
+                </select>
+              </div>
+            </div>
+            <div class="policy-note">
+              🛡️ <strong>Escrow Guarantee:</strong> Payout occurs directly to the finder's verified UPI ID only when the duty officer validates the 6-digit physical handover token.
+            </div>
+          </div>
+
+          <!-- Section 4: Location & Time -->
+          <div class="form-card">
+            <h2 class="form-card-title">4. Last Seen Location & Time</h2>
+            
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="lost-location">Last Seen Place / Landmark *</label>
+                <input type="text" id="lost-location" class="form-control" placeholder="e.g., Central Library 2nd Floor, Table 14" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="lost-datetime">Estimated Date & Time *</label>
+                <input type="datetime-local" id="lost-datetime" class="form-control" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="lost-lat">GPS Latitude *</label>
+                <input type="number" step="any" id="lost-lat" class="form-control" value="12.9725" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="lost-lon">GPS Longitude *</label>
+                <input type="number" step="any" id="lost-lon" class="form-control" value="77.5958" required />
+              </div>
+              <div class="form-group flex-1 flex-align-end">
+                <button type="button" class="btn btn-outline full-width" onclick="app.detectCurrentGPS('lost')">
+                  📍 Detect Current GPS
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Owner Verification & Lost-Phone Catch-22 Rule -->
+          <div class="form-card">
+            <h2 class="form-card-title">5. Owner Identity & The Lost-Phone Catch-22 Rule</h2>
+            <p class="card-desc">
+              If your phone was lost, you cannot receive SMS notifications. A <strong>Secondary / Backup Contact</strong> is mandatory to guarantee you receive recovery alerts.
+            </p>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="lost-owner-name">Full Legal Name *</label>
+                <input type="text" id="lost-owner-name" class="form-control" placeholder="Your name" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="lost-owner-phone">Primary Phone *</label>
+                <div class="input-with-button">
+                  <input type="tel" id="lost-owner-phone" class="form-control" placeholder="+91 9876543210" required />
+                  <button type="button" class="btn btn-outline btn-sm" id="btn-lost-send-otp" onclick="app.handleSendOTP('lost')">Verify Phone</button>
+                </div>
+                <div id="lost-otp-box" class="otp-box hidden">
+                  <input type="text" id="lost-otp-code" class="form-control form-control-sm" placeholder="6-digit OTP (or 123456)" />
+                  <button type="button" class="btn btn-primary btn-sm" onclick="app.handleVerifyOTP('lost')">Confirm</button>
+                </div>
+                <span id="lost-phone-verified-badge" class="badge badge-verified hidden">✓ Verified</span>
+              </div>
+            </div>
+
+            <!-- MANDATORY BACKUP CONTACT (The Lost-Phone Catch-22 Rule) -->
+            <div class="form-group" style="background:#fffbeb; border:1px solid #fde68a; padding:1rem; border-radius:var(--radius-sm);">
+              <label for="lost-backup-contact" style="color:#92400e; font-weight:700;">
+                ⚠️ Mandatory Secondary / Backup Contact (The Lost-Phone Catch-22 Rule) *
+              </label>
+              <input 
+                type="text" 
+                id="lost-backup-contact" 
+                class="form-control" 
+                placeholder="Friend's phone or secondary email (e.g. +91 98765 00000 - Roommate Rohan)" 
+                required 
+              />
+              <span class="field-hint" style="color:#b45309;">
+                Essential: If you lost your primary mobile phone, recovery alerts and handover verification tokens will be relayed to this contact.
+              </span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="lost-owner-email">Owner Email Address *</label>
+                <input type="email" id="lost-owner-email" class="form-control" placeholder="name@example.com" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="lost-inst-id">Institutional / Government ID Number *</label>
+                <input type="text" id="lost-inst-id" class="form-control" placeholder="e.g. STU-2024-8891 or AADHAAR/DL" required />
+                <span class="field-hint">Hashed via SHA-256 for privacy; only the last 4 digits are used at the desk.</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="lost-address">Residential / Campus Hostel Address *</label>
+              <input type="text" id="lost-address" class="form-control" placeholder="Hostel Block, Room Number or Residential Address" required />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline" onclick="app.showSection('home')">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-lost">Register Lost Report & Lock Escrow</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         3. REPORT FOUND FORM VIEW (Dual Ingestion)
+         ==================================================================== -->
+    <section id="view-found" class="view-section hidden">
+      <div class="form-container">
+        <div class="form-header">
+          <span class="badge badge-found">Found Property Ingestion</span>
+          <h1>Report a Found Item</h1>
+          <p>Submit details to unite property with its owner. Your submission is protected by strict double-blind architecture.</p>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="ingestion-mode-card">
+          <label class="mode-label">Select Custody Submission Method:</label>
+          <div class="mode-options">
+            <label class="mode-option active" id="mode-opt-desk" onclick="app.switchFoundMode('desk')">
+              <input type="radio" name="found_mode" value="desk" checked style="display:none" />
+              <div class="mode-option-content">
+                <span class="mode-badge">Recommended</span>
+                <span class="mode-title">🏢 Path A: Drop at Official Verified Desk</span>
+                <span class="mode-desc">Deposit the item with an active duty officer. Immediate digital receipt generated.</span>
+              </div>
+            </label>
+            <label class="mode-option" id="mode-opt-direct" onclick="app.switchFoundMode('direct')">
+              <input type="radio" name="found_mode" value="direct" style="display:none" />
+              <div class="mode-option-content">
+                <span class="mode-badge">Direct Custody</span>
+                <span class="mode-title">📦 Path B: Keep in Personal Custody</span>
+                <span class="mode-desc">Retain physical custody, upload photos, and coordinate handover upon verified match.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- PATH A: VERIFIED DESK FORM -->
+        <form id="found-desk-form" onsubmit="app.handleFoundDeskSubmit(event)">
+          <div class="form-card">
+            <h2 class="form-card-title">1. Select Drop-Off Desk</h2>
+            <div class="form-group">
+              <label for="found-desk-select">Official Custody Desk *</label>
+              <select id="found-desk-select" class="form-control" onchange="app.handleDeskChange(event)" required>
+                <option value="">Select Official Desk</option>
+              </select>
+            </div>
+            <div id="selected-desk-info" class="desk-preview-box hidden">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card-title">2. Item Details & Photo</h2>
+            
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="found-desk-object-name">Item Name *</label>
+                <input type="text" id="found-desk-object-name" class="form-control" placeholder="e.g., Black Leather Bi-Fold Wallet" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-desk-category">Category *</label>
+                <select id="found-desk-category" class="form-control" required>
+                  <option value="">Select Category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Smartphones & Tablets">Smartphones & Tablets</option>
+                  <option value="Wallets & Cards">Wallets & Cards</option>
+                  <option value="Keys & Accessories">Keys & Accessories</option>
+                  <option value="IDs & Documents">IDs & Documents</option>
+                  <option value="Bags & Backpacks">Bags & Backpacks</option>
+                  <option value="Watches & Jewelry">Watches & Jewelry</option>
+                  <option value="Clothing & Eyewear">Clothing & Eyewear</option>
+                  <option value="Personal Accessories">Personal Accessories</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="found-desk-desc">Visible Description *</label>
+              <textarea id="found-desk-desc" class="form-control" rows="3" placeholder="Describe exterior traits without opening confidential pockets or compartments..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Mandatory Verification Photo *</label>
+              <div class="file-uploader">
+                <input type="file" id="found-desk-photo" accept="image/*" required style="display:none" onchange="app.handleSinglePhoto(event, 'desk')" />
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('found-desk-photo').click()">Upload Primary Photo</button>
+                <span class="file-text" id="found-desk-photo-name">Required</span>
+              </div>
+              <div id="found-desk-photo-preview" class="single-photo-preview"></div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card-title">3. Good Samaritan Details & UPI Reward Payout</h2>
+            
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="found-desk-finder-name">Your Full Name *</label>
+                <input type="text" id="found-desk-finder-name" class="form-control" placeholder="Your legal name" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-desk-finder-phone">Contact Phone *</label>
+                <input type="tel" id="found-desk-finder-phone" class="form-control" placeholder="+91 9876543210" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="found-desk-finder-email">Email Address *</label>
+                <input type="email" id="found-desk-finder-email" class="form-control" placeholder="name@example.com" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-desk-upi">Payout UPI ID * (For Escrow Reward)</label>
+                <input type="text" id="found-desk-upi" class="form-control" placeholder="e.g. yourname@okaxis" required />
+                <span class="field-hint">Any escrow reward pledged by the owner will disburse directly to this UPI.</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="found-desk-roll">Institutional Roll / ID (Optional - Verified Samaritan Badge)</label>
+              <input type="text" id="found-desk-roll" class="form-control" placeholder="e.g. 2024CS042" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline" onclick="app.showSection('home')">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-found-desk">Generate Desk Intake Receipt</button>
+          </div>
+        </form>
+
+        <!-- PATH B: DIRECT CUSTODY FORM -->
+        <form id="found-direct-form" class="hidden" onsubmit="app.handleFoundDirectSubmit(event)">
+          <div class="form-card">
+            <h2 class="form-card-title">1. Item Photos (1 Mandatory + Up to 4 Angles)</h2>
+            <p class="card-desc">Clear multi-angle photos help the matching algorithm identify the owner rapidly.</p>
+            
+            <div class="form-group">
+              <label>Primary Mandatory Photo *</label>
+              <div class="file-uploader">
+                <input type="file" id="found-direct-primary-photo" accept="image/*" required style="display:none" onchange="app.handleSinglePhoto(event, 'direct-primary')" />
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('found-direct-primary-photo').click()">Upload Primary Photo</button>
+                <span class="file-text" id="found-direct-primary-name">Required</span>
+              </div>
+              <div id="found-direct-primary-preview" class="single-photo-preview"></div>
+            </div>
+
+            <div class="form-group">
+              <label>Additional Angle Photos (Optional, up to 4)</label>
+              <div class="file-uploader">
+                <input type="file" id="found-direct-extra-photos" multiple accept="image/*" style="display:none" onchange="app.handleExtraPhotos(event)" />
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('found-direct-extra-photos').click()">Add Extra Angles</button>
+                <span class="file-text" id="found-direct-extra-count">0 additional photos</span>
+              </div>
+              <div id="found-direct-extra-preview" class="image-preview-grid"></div>
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card-title">2. Item Description & Location Found</h2>
+            
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="found-direct-object-name">Item Name *</label>
+                <input type="text" id="found-direct-object-name" class="form-control" placeholder="e.g., Apple MacBook Laptop in Dark Cover" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-direct-category">Category *</label>
+                <select id="found-direct-category" class="form-control" required>
+                  <option value="">Select Category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Smartphones & Tablets">Smartphones & Tablets</option>
+                  <option value="Wallets & Cards">Wallets & Cards</option>
+                  <option value="Keys & Accessories">Keys & Accessories</option>
+                  <option value="IDs & Documents">IDs & Documents</option>
+                  <option value="Bags & Backpacks">Bags & Backpacks</option>
+                  <option value="Watches & Jewelry">Watches & Jewelry</option>
+                  <option value="Clothing & Eyewear">Clothing & Eyewear</option>
+                  <option value="Personal Accessories">Personal Accessories</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="found-direct-desc">Visible Description *</label>
+              <textarea id="found-direct-desc" class="form-control" rows="3" placeholder="Describe physical appearance without tampering with locked items..." required></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="found-direct-location">Found Location *</label>
+                <input type="text" id="found-direct-location" class="form-control" placeholder="e.g., Library Study Section Table 12" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-direct-datetime">Found Date & Time *</label>
+                <input type="datetime-local" id="found-direct-datetime" class="form-control" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="found-direct-lat">GPS Latitude</label>
+                <input type="number" step="any" id="found-direct-lat" class="form-control" value="12.9726" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-direct-lon">GPS Longitude</label>
+                <input type="number" step="any" id="found-direct-lon" class="form-control" value="77.5959" required />
+              </div>
+              <div class="form-group flex-1 flex-align-end">
+                <button type="button" class="btn btn-outline full-width" onclick="app.detectCurrentGPS('direct')">
+                  📍 Auto-Capture GPS
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="found-direct-handover-pref">Pickup / Handover Preference *</label>
+              <input type="text" id="found-direct-handover-pref" class="form-control" placeholder="e.g., Can deposit at Central Library Desk or Meet at Tech Hub after 4 PM" required />
+            </div>
+          </div>
+
+          <div class="form-card">
+            <h2 class="form-card-title">3. Finder Details & Reward Information</h2>
+            
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="found-direct-finder-name">Full Name *</label>
+                <input type="text" id="found-direct-finder-name" class="form-control" placeholder="Your name" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-direct-finder-phone">Phone Number *</label>
+                <input type="tel" id="found-direct-finder-phone" class="form-control" placeholder="+91 9123456789" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="found-direct-finder-email">Email Address *</label>
+                <input type="email" id="found-direct-finder-email" class="form-control" placeholder="name@example.com" required />
+              </div>
+              <div class="form-group flex-1">
+                <label for="found-direct-upi">Payout UPI ID * (For Escrow)</label>
+                <input type="text" id="found-direct-upi" class="form-control" placeholder="e.g., rahul@okaxis" required />
+                <span class="field-hint">Used to credit your escrow reward upon verified handover.</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="found-direct-roll">ID Number / College Roll Number (Optional)</label>
+              <input type="text" id="found-direct-roll" class="form-control" placeholder="e.g., 2024CS042" />
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline" onclick="app.showSection('home')">Cancel</button>
+            <button type="submit" class="btn btn-primary btn-lg" id="btn-submit-found-direct">Submit Found Item Record</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         4. USER DASHBOARD (TRACK STATUS & BLIND PROBES)
+         ==================================================================== -->
+    <section id="view-status" class="view-section hidden">
+      <div class="status-container">
+        <div class="form-header">
+          <span class="badge badge-neutral">User Verification & Tracking Dashboard</span>
+          <h1>Track Your Submissions</h1>
+          <p>Inspect the live verification pipeline, upload photos in response to blind probe challenges, and view your dynamic 6-digit physical handover token.</p>
+        </div>
+
+        <div class="status-search-card">
+          <form id="status-lookup-form" onsubmit="app.handleStatusLookup(event)" class="lookup-form">
+            <div class="lookup-input-row">
+              <input 
+                type="text" 
+                id="status-lookup-input" 
+                class="form-control form-control-lg" 
+                placeholder="Enter Registered Phone Number, Tracking Token, or Report ID" 
+                required 
+              />
+              <button type="submit" class="btn btn-primary" id="btn-status-lookup">Search Records</button>
+            </div>
+            <div class="lookup-options">
+              <span>Quick tests: Search <code>+91 98765 43210</code> (Aarav), <code>+91 91234 56789</code> (Rahul), or <code>DEMO-LOST-MACBOOK</code>.</span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Status Results Area -->
+        <div id="status-results" class="status-results hidden">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ====================================================================
+         5. ADMIN & DESK OFFICER PORTAL
+         ==================================================================== -->
+    <section id="view-admin" class="view-section hidden">
+      <div class="admin-container">
+        <!-- Admin Auth Box (if not logged in) -->
+        <div id="admin-auth-box" class="admin-auth-card">
+          <div class="auth-header">
+            <span class="badge badge-admin">Restricted Access</span>
+            <h2>Admin & Desk Officer Portal</h2>
+            <p>Enter your authorization PIN to inspect intake records, execute the 5-Stage Matching Algorithm, verify blind probes, and disburse escrow rewards.</p>
+          </div>
+          <form id="admin-login-form" onsubmit="app.handleAdminLogin(event)">
+            <div class="form-group">
+              <label for="admin-pin-input">Authorization PIN</label>
+              <input type="password" id="admin-pin-input" class="form-control" placeholder="Default PIN: admin123" required />
+            </div>
+            <button type="submit" class="btn btn-primary full-width">Unlock Admin Dashboard</button>
+          </form>
+        </div>
+
+        <!-- Admin Dashboard Content (when authenticated) -->
+        <div id="admin-dashboard" class="admin-dashboard hidden">
+          <div class="admin-topbar">
+            <div>
+              <span class="badge badge-verified">Authorized Officer Session</span>
+              <h1>Administrative Intake & Handover Terminal</h1>
+            </div>
+            <div class="admin-top-actions">
+              <button class="btn btn-outline btn-sm" onclick="app.seedDemoDataset()">⚡ Reload Demo Data</button>
+              <button class="btn btn-outline btn-sm" onclick="app.refreshAdminData()">↻ Refresh</button>
+              <button class="btn btn-outline btn-sm" onclick="app.adminLogout()">Log Out</button>
+            </div>
+          </div>
+
+          <!-- Admin Tabs (including Tab 5: Handover Desk Terminal) -->
+          <div class="admin-tabs">
+            <button class="admin-tab-btn active" id="atab-lost" onclick="app.switchAdminTab('lost')">Lost Items Records</button>
+            <button class="admin-tab-btn" id="atab-found" onclick="app.switchAdminTab('found')">Found Items & Receipts</button>
+            <button class="admin-tab-btn" id="atab-escrow" onclick="app.switchAdminTab('escrow')">Escrow Vault</button>
+            <button class="admin-tab-btn" id="atab-desks" onclick="app.switchAdminTab('desks')">Verified Desks</button>
+            <button class="admin-tab-btn" id="atab-handover" onclick="app.switchAdminTab('handover')" style="font-weight:700; color:#059669;">🔑 Handover Desk Terminal</button>
+          </div>
+
+          <!-- Admin Tab 1: Lost Items -->
+          <div id="admin-panel-lost" class="admin-panel">
+            <div class="panel-header">
+              <h3>Lost Property Intake & Private Secret Inspector</h3>
+              <span class="text-muted" id="admin-lost-count">0 items</span>
+            </div>
+            <div id="admin-lost-list" class="admin-table-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Admin Tab 2: Found Items -->
+          <div id="admin-panel-found" class="admin-panel hidden">
+            <div class="panel-header">
+              <h3>Found Property & Verified Desk Receipts</h3>
+              <span class="text-muted" id="admin-found-count">0 items</span>
+            </div>
+            <div id="admin-found-list" class="admin-table-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Admin Tab 3: Escrow & Payouts -->
+          <div id="admin-panel-escrow" class="admin-panel hidden">
+            <div class="panel-header">
+              <h3>Reward Escrow Vault & Disbursal Manager</h3>
+              <span class="text-muted" id="admin-escrow-count">0 records</span>
+            </div>
+            <div id="admin-escrow-list" class="admin-table-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Admin Tab 4: Verified Desks -->
+          <div id="admin-panel-desks" class="admin-panel hidden">
+            <div class="panel-header">
+              <h3>Verified Campus & Partner Custody Desks</h3>
+              <span class="text-muted">4 Active Desks</span>
+            </div>
+            <div id="admin-desks-list" class="grid-cards">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Admin Tab 5: Handover Desk Terminal -->
+          <div id="admin-panel-handover" class="admin-panel hidden">
+            <div class="terminal-card">
+              <div class="terminal-header">
+                <span class="badge badge-verified">Official Custody Terminal</span>
+                <h2>Physical Handover OTP Verification</h2>
+                <p class="field-hint">Enter the claimant's dynamic 6-digit handover passcode to authenticate ownership, mark records as RESOLVED, and disburse escrow.</p>
+              </div>
+
+              <form id="handover-terminal-form" onsubmit="app.handleHandoverVerify(event)">
+                <div class="form-group">
+                  <label for="handover-desk-select">Terminal Desk</label>
+                  <select id="handover-desk-select" class="form-control" required>
+                    <!-- Populated via JS -->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="handover-officer-name">Duty Officer Name</label>
+                  <input type="text" id="handover-officer-name" class="form-control" value="Officer Sunita Verma" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="handover-passcode-input">Claimant 6-Digit Passcode *</label>
+                  <input 
+                    type="text" 
+                    id="handover-passcode-input" 
+                    class="terminal-code-input" 
+                    maxlength="6" 
+                    placeholder="••••••" 
+                    required 
+                  />
+                  <div style="display:flex; justify-content:space-between; margin-top:0.4rem;">
+                    <span class="field-hint">Ask the claimant for the 6-digit code shown in their User Dashboard.</span>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="app.fillLatestPasscode()">Auto-Fill Latest Code</button>
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary full-width btn-lg" id="btn-verify-handover">
+                  ✓ Verify Passcode & Complete Handover
+                </button>
+              </form>
+
+              <div id="handover-result-box" class="hidden">
+                <!-- Populated via JS upon verification -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Generic Modal for Receipts / Tracking Details -->
+    <div id="app-modal" class="modal-backdrop hidden" onclick="app.closeModal(event)">
+      <div class="modal-card" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3 id="modal-title">Details</h3>
+          <button class="modal-close-btn" onclick="app.closeModal()">✕</button>
+        </div>
+        <div id="modal-body" class="modal-body">
+          <!-- Dynamic Content -->
+        </div>
+        <div class="modal-footer" id="modal-footer">
+          <button class="btn btn-primary" onclick="app.closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Authentication Modal -->
+    <div id="auth-modal" class="modal-backdrop hidden" onclick="app.closeAuthModal(event)">
+      <div class="modal-card" style="max-width: 440px;" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h3 id="auth-modal-title">Account Access</h3>
+          <button class="modal-close-btn" onclick="app.closeAuthModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <!-- Auth Tabs -->
+          <div style="display:flex; border-bottom:1px solid var(--border-light); margin-bottom:1rem;">
+            <button type="button" id="tab-auth-login" class="nav-btn active" style="flex:1; border-radius:0;" onclick="app.switchAuthTab('login')">Sign In</button>
+            <button type="button" id="tab-auth-register" class="nav-btn" style="flex:1; border-radius:0;" onclick="app.switchAuthTab('register')">Register</button>
+          </div>
+
+          <!-- Sign In Form -->
+          <form id="form-auth-login" onsubmit="app.handleUserLogin(event)">
+            <div class="form-group">
+              <label for="login-ident">Email or Phone Number *</label>
+              <input type="text" id="login-ident" class="form-control" placeholder="aarav.sharma@campus.edu" required />
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password *</label>
+              <input type="password" id="login-password" class="form-control" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="btn btn-primary full-width">Sign In to Dashboard</button>
+          </form>
+
+          <!-- Register Form -->
+          <form id="form-auth-register" class="hidden" onsubmit="app.handleUserRegister(event)">
+            <div class="form-group">
+              <label for="reg-name">Full Legal Name *</label>
+              <input type="text" id="reg-name" class="form-control" placeholder="Aarav Sharma" required />
+            </div>
+            <div class="form-group">
+              <label for="reg-email">Email Address *</label>
+              <input type="email" id="reg-email" class="form-control" placeholder="name@campus.edu" required />
+            </div>
+            <div class="form-group">
+              <label for="reg-phone">Phone Number *</label>
+              <input type="tel" id="reg-phone" class="form-control" placeholder="+91 98765 43210" required />
+            </div>
+            <div class="form-group">
+              <label for="reg-password">Password (min 6 characters) *</label>
+              <input type="password" id="reg-password" class="form-control" minlength="6" placeholder="••••••••" required />
+            </div>
+            <button type="submit" class="btn btn-primary full-width">Create Account</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
